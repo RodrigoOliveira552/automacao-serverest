@@ -1,24 +1,30 @@
 const { test, expect, request } = require('@playwright/test');
 const { LoginPage } = require('../pages/LoginPage');
 
-test.describe('Módulo 02: Autenticação (Login)', () => {
+test.describe('Suite 02: Autenticação (Login)', () => {
   let loginPage;
-  let usuarioValido;
+  let adminValido;
+  let userValido;
 
-  // O PULO DO GATO: Preparamos a massa de dados via API antes de tudo
   test.beforeAll(async () => {
     const apiContext = await request.newContext();
-    usuarioValido = {
-      nome: 'Rodrigo QA',
-      email: `rodrigo_qa_${Date.now()}@teste.com`,
+    
+    adminValido = {
+      nome: 'Rodrigo Admin',
+      email: `admin_${Date.now()}@teste.com`,
       password: 'senha_segura',
-      administrador: 'true'
+      administrador: 'true' // Flag de Admin
     };
 
-    // Criando o usuário silenciosamente pela API
-    await apiContext.post('https://serverest.dev/usuarios', {
-      data: usuarioValido
-    });
+    userValido = {
+      nome: 'Rodrigo User',
+      email: `user_${Date.now()}@teste.com`,
+      password: 'senha_segura',
+      administrador: 'false'
+    };
+
+    await apiContext.post('https://serverest.dev/usuarios', { data: adminValido });
+    await apiContext.post('https://serverest.dev/usuarios', { data: userValido });
   });
 
   test.beforeEach(async ({ page }) => {
@@ -26,29 +32,29 @@ test.describe('Módulo 02: Autenticação (Login)', () => {
     await loginPage.goto();
   });
 
-  test('CT07/08 - Login com Sucesso (Usando massa da API)', async ({ page }) => {
-    // Usamos o usuário que a API criou para nós no beforeAll
-    await loginPage.doLogin(usuarioValido.email, usuarioValido.password);
+  test('CT07 - Login de Administrador com Sucesso', async ({ page }) => {
+    await loginPage.doLogin(adminValido.email, adminValido.password);
 
-    // Valida se entrou no sistema
+    await expect(page).toHaveURL(/.*admin\/home/);
+    await expect(page.locator('h1')).toContainText('Bem Vindo');
+  });
+
+  test('CT08 - Login de Usuário Comum com Sucesso', async ({ page }) => {
+    await loginPage.doLogin(userValido.email, userValido.password);
+
     await expect(page).toHaveURL(/.*home/);
-    await expect(page.locator('h1')).toBeVisible(); // Confirma que a página carregou
+    await expect(page.locator('h1')).toContainText('Serverest Store');
   });
 
   test('CT09 - Validar Credenciais Inválidas', async ({ page }) => {
     await loginPage.doLogin('hacker@email.com', 'senhaerrada123');
-
-    // Valida a mensagem de erro genérica (Regra de Segurança)
     const alertErro = page.locator('div.alert');
     await expect(alertErro).toBeVisible();
     await expect(alertErro).toContainText('Email e/ou senha inválidos');
   });
 
   test('CT10 - Validar Campos Obrigatórios no Login', async ({ page }) => {
-    // Tenta logar vazio
     await loginPage.doLogin('', '');
-
-    // Captura os alertas de obrigatoriedade
     const alertas = page.locator('div.alert > span');
     await expect(alertas.nth(0)).toContainText('Email é obrigatório');
     await expect(alertas.nth(1)).toContainText('Password é obrigatório');

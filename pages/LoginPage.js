@@ -2,7 +2,6 @@ exports.LoginPage = class LoginPage {
   constructor(page) {
     this.page = page;
 
-    // Seletores da página de Login
     this.emailInput = page.getByTestId('email');
     this.senhaInput = page.getByTestId('senha'); // Aqui o dev usou 'senha' em vez de 'password'
     this.entrarButton = page.getByTestId('entrar');
