@@ -1,31 +1,42 @@
-exports.SignUpPage = class SignUpPage {
+class SignUpPage {
   constructor(page) {
     this.page = page;
-
-    this.nomeInput = page.getByTestId('nome');
-    this.emailInput = page.getByTestId('email');
-    this.senhaInput = page.getByTestId('password');
-    this.adminCheckbox = page.getByTestId('checkbox');
-    this.cadastrarButton = page.getByTestId('cadastrar');
     
-    this.entrarLink = page.getByTestId('entrar');
+    // 🎯 Mapeamento de Elementos (Locators)
+    this.inputNome = page.getByTestId('nome');
+    this.inputEmail = page.getByTestId('email');
+    this.inputSenha = page.getByTestId('password');
+    this.checkboxAdmin = page.getByTestId('checkbox'); 
+    this.btnCadastrar = page.getByTestId('cadastrar');
+    this.linkLogin = page.getByTestId('entrar'); 
   }
 
-  async goto() {
-    await this.page.goto('https://front.serverest.dev/cadastrarusuarios', { waitUntil: 'domcontentloaded' });
+  async preencherNome(nome) {
+    await this.inputNome.fill(nome);
   }
 
-  async fillForm(nome, email, senha, isAdmin = false) {
-    if (nome) await this.nomeInput.fill(nome);
-    if (email) await this.emailInput.fill(email);
-    if (senha) await this.senhaInput.fill(senha);
-    
-    if (isAdmin) {
-      await this.adminCheckbox.check();
+  async preencherEmail(email) {
+    await this.inputEmail.fill(email);
+  }
+
+  async preencherSenha(senha) {
+    await this.inputSenha.fill(senha);
+  }
+
+  async marcarComoAdministrador() {
+    const isChecked = await this.checkboxAdmin.isChecked();
+    if (!isChecked) {
+      await this.checkboxAdmin.check();
     }
   }
 
   async submitForm() {
-    await this.cadastrarButton.click();
+    await this.btnCadastrar.click();
   }
-};
+
+  async clicarLinkLogin() {
+    await this.linkLogin.click();
+  }
+}
+
+module.exports = { SignUpPage };

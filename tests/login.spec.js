@@ -1,7 +1,7 @@
 const { test, expect, request } = require('@playwright/test');
 const { LoginPage } = require('../pages/LoginPage');
 
-test.describe('Suite 02: Autenticação (Login)', () => {
+test.describe('Suite 03: Autenticação (Login)', () => {
   let loginPage;
   let adminValido;
   let userValido;

@@ -2,7 +2,7 @@ const { test, expect, request } = require('@playwright/test');
 const { HomePage } = require('../pages/HomePage');
 const { CartPage } = require('../pages/CartPage'); // Importamos a nova página
 
-test.describe('Suite 03: Produtos e Carrinho de Compras', () => {
+test.describe('Suite 04: Produtos e Carrinho de Compras', () => {
   let homePage;
   let cartPage;
   let tokenDeAcesso;
